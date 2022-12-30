@@ -206,3 +206,6 @@ This field ```mandatory```. It is the one used to store the value entered in the
 
 *Small Device View*
 <img src='public/readme-data/shot2.png'>
+
+#### Output of clicking add button
+<img src='public/readme-data/shot4.png'>
