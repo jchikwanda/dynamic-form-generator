@@ -14,11 +14,11 @@ const LoginForm = () => {
                 placeholder: 'Enter your email'
             },
             {
-                name: 'email',
+                name: 'password',
                 type: 'password-field',
                 label: 'Password',
                 defaultValue: '',
-                placeholder: 'Enter your email'
+                placeholder: 'Enter your password'
             },
         ],
         largeDevice: {
