@@ -10,62 +10,119 @@ import { v4 as uuidv4 } from 'uuid';
 const createFormElement = ({element={}}) => {
     switch (element.type) {
         case 'email-field':
-            return (field) => (
-                <TextField
-                    margin="dense"
-                    label={element.label}
-                    type="email"
-                    value={element.defaultValue}
-                    placeholder={element.placeholder}
-                    fullWidth
-                    variant="standard"
-                    {...field}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                        margin="dense"
+                        label={element.label}
+                        type="email"
+                        value={element.defaultValue}
+                        placeholder={element.placeholder}
+                        fullWidth
+                        variant="standard"
+                        {...field}
+                        {...register(element.name, {
+                            required:element.required,
+                            pattern: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+                        })}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required.</p>}
+                    {errors?.[element.name]?.type === "pattern" && <p className="text-red-500 text-xs">Email is not valid.</p>}
+                </div>
             )
-            break;
 
         case 'date-picker':
-            return (field) => (
-                <DesktopDatePicker
-                    {...field}
-                    label={element.label}
-                    className='w-full'
-                    value={element.defaultValue}
-                    inputFormat="MM/DD/YYYY"
-                    renderInput={(params) => <TextField sx={{paddingTop: '.5rem'}} variant={'standard'} {...params} />}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                         margin="dense"
+                         label={element.label}
+                         type="date"
+                         value={element.defaultValue}
+                         placeholder={element.placeholder}
+                         fullWidth
+                         variant="standard"
+                         {...field}
+                         {...register(element.name, {
+                             required:element.required,
+                         })}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
 
         case 'time-picker':
-            return (field) => (
-                <TimePicker
-                    {...field}
-                    className='w-full'
-                    value={element.defaultValue}
-                    label={element.label}
-                    renderInput={(params) => <TextField sx={{paddingTop: '.5rem'}} variant={'standard'} {...params} />}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                         margin="dense"
+                         label={element.label}
+                         type="time"
+                         value={element.defaultValue}
+                         placeholder={element.placeholder}
+                         fullWidth
+                         variant="standard"
+                         {...field}
+                         {...register(element.name, {
+                             required:element.required,
+                         })}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
 
         case 'dropdown':
-            return (field) => (
-                <Autocomplete
-                    options={element.dropdownList}
-                    getOptionLabel={(option) => option.label}
-                    disableCloseOnSelect
-                    onChange={(event, item) => field.onChange(item)}
-                    sx={{paddingBlock: '.5rem'}}
-                    renderInput={(params) => (
-                        <TextField {...params} label="Options" variant="standard" />
-                    )}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <Autocomplete
+                        options={element.dropdownList}
+                        onInputChange={(event, item) => field.onChange(item)}
+                        getOptionLabel={(option) => option[element.key]}
+                        sx={{paddingBlock: '.5rem'}}
+                        renderInput={(params) => (
+                            <TextField {...params} {...register(element.name, {required:element.required})} label="Options" variant="standard" />
+                        )}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
+        
+        case 'multi-dropdown':
+            return ({field, register, errors}) => (
+                <div>
+                    <div className="flex justify-between items-center">
+                        <Autocomplete
+                            fullWidth
+                            disabled={element.getter}
+                            defaultValue={element?.defaultValue}
+                            isOptionEqualToValue={(option, value) => option[element.key] === value[element.key]}
+                            multiple={true}
+                            options={element.dropdownList}
+                            getOptionLabel={(option) => option[element.key]}
+                            onChange={(event, item) => field.onChange(item)}
+                            sx={{paddingBlock: '.5rem'}}
+                            renderInput={(params) => (
+                                <TextField {...params} label="Options" variant="standard" />
+                            )}
+                        />
+                        <FormControlLabel 
+                            control={
+                                <Checkbox checked={element.getter} onChange={() => {
+                                    element.handler()
+                                    if (!element.getter) {
+                                        field.onChange([])
+                                    }
+                                }} />   
+                            }
+                            label="Do Not Add Case"
+                        />
+                    </div>
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
+            )
 
         case 'radio':
-            return (field) => (
+            return ({field, register, errors}) => (
                 <FormControl>
                     <FormLabel id="demo-radio-buttons-group-label">Gender</FormLabel>
                     <RadioGroup
@@ -74,120 +131,143 @@ const createFormElement = ({element={}}) => {
                         defaultValue={element.radioList[0]}
                         value={element.defaultValue}
                         {...field}
+                        {...register(element.name, {
+                            required:element.required,
+                        })}
                     >
                         {element.radioList.map((item) => (
                             <FormControlLabel key={uuidv4()} className="capitalize" value={item} control={<Radio />} label={item} />
                         ))}
                     </RadioGroup>
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
                 </FormControl>
             )
-            break;
-
-        case 'datetime-picker':
-            return (field) => (
-                <DateTimePicker
-                    label={element.label}
-                    {...field}
-                    className='w-full'
-                    value={element.defaultValue}
-                    renderInput={(params) => <TextField sx={{paddingTop: '.5rem'}} variant={'standard'} {...params} />}
-                />
-            )
-            break;
 
         case 'checkbox':
-            return (field) => (
-                <FormGroup>
-                    <FormControlLabel
-                        control={
-                        <Checkbox />
-                        }
-                        className='capitalize'
-                        label={element.label}
-                        {...field}
-                    />
-                </FormGroup>
+            return ({field, register, errors}) => (
+                <div>
+                    <FormGroup>
+                        <FormControlLabel
+                            control={
+                            <Checkbox />
+                            }
+                            className='capitalize'
+                            label={element.label}
+                            {...field}
+                            {...register(element.name, {
+                                required:element.required,
+                            })}
+                        />
+                    </FormGroup>
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
 
         case 'number-field':
-            return (field) => (
-                <TextField
-                    id="outlined-number"
-                    label={element.label}
-                    type="number"
-                    placeholder={element.placeholder}
-                    fullWidth
-                    variant='standard'
-                    {...field}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                        id="outlined-number"
+                        label={element.label}
+                        type="number"
+                        placeholder={element.placeholder}
+                        fullWidth
+                        variant='standard'
+                        {...field}
+                        {...register(element.name, {
+                            required:element.required
+                        })}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-        break;
 
         case 'message-field':
-            return (field) => (
-                <TextField
-                    id="standard-multiline-static"
-                    label="Message"
-                    fullWidth
-                    multiline
-                    value={element.defaultValue}
-                    rows={element.rows}
-                    placeholder={element.placeholder}
-                    variant="standard"
-                    {...field}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                        id="standard-multiline-static"
+                        label="Message"
+                        fullWidth
+                        multiline
+                        value={element.defaultValue}
+                        rows={element.rows}
+                        placeholder={element.placeholder}
+                        variant="standard"
+                        {...field}
+                        {...register(element.name, {
+                            required:element.required
+                        })}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
 
         case 'file-field':
-            return (field) => (
-                <TextField
-                    id="file"
-                    type={'file'}
-                    sx={{paddingTop: '1.5rem'}}
-                    fullWidth
-                    variant="standard"
-                    {...field}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                        id="file"
+                        type={'file'}
+                        sx={{paddingTop: '1.5rem'}}
+                        fullWidth
+                        variant="standard"
+                        {...field}
+                        {...register(element.name, {
+                            required:element.required
+                        })}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
 
         case 'text-field':
-            return (field) => (
-                <TextField
-                    margin="dense"
-                    label={element.label}
-                    type="text"
-                    value={element.defaultValue}
-                    fullWidth
-                    {...field}
-                    variant="standard"
-                    placeholder={element.placeholder}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                        margin="dense"
+                        label={element.label}
+                        type="text"
+                        value={element.defaultValue}
+                        fullWidth
+                        {...field}
+                        {...register(element.name, {
+                            required:element.required
+                        })}
+                        variant="standard"
+                        placeholder={element.placeholder}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                </div>
             )
-            break;
         
         case 'password-field':
-            return (field) => (
-                <TextField
-                    margin="dense"
-                    label={element.label}
-                    type="password"
-                    value={element.defaultValue}
-                    fullWidth
-                    {...field}
-                    variant="standard"
-                    placeholder={element.placeholder}
-                />
+            return ({field, register, errors}) => (
+                <div>
+                    <TextField
+                        margin="dense"
+                        label={element.label}
+                        type="password"
+                        value={element.defaultValue}
+                        fullWidth
+                        {...field}
+                        {...register(element.name, {
+                                required:element.required,
+                                pattern: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/
+                            })}
+                        variant="standard"
+                        placeholder={element.placeholder}
+                    />
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
+                    {errors?.[element.name]?.type === "pattern" && <p className="text-red-500 text-xs">Password is not valid</p>}
+                </div>
             )
-            break;
         
         case 'switch-field':
-            return (field) => (
+            return ({field, register, errors}) => (
                 <FormControl component="fieldset" variant="standard">
                     <FormLabel component="legend">{element.label}</FormLabel>
                     <FormGroup>
@@ -198,11 +278,14 @@ const createFormElement = ({element={}}) => {
                             className='capitalize'
                             label={element.label}
                             {...field}
+                            {...register(element.name, {
+                                required:element.required,
+                            })}
                         />
                     </FormGroup>
+                    {errors?.[element.name]?.type === "required" && <p className="text-red-500 text-xs">This field is required</p>}
                 </FormControl>
             )
-            break;
     
         default:
             return (
@@ -217,7 +300,6 @@ const createFormElement = ({element={}}) => {
                     placeholder={element.placeholder}
                 />
             )
-            break;
     }
 }
 

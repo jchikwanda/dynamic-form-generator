@@ -3,9 +3,9 @@ import LoginForm from './components/FormGenerator/LoginForm';
 import TestForm from './components/FormGenerator/TestForm';
 import { useContextProvider } from './contexts/AppProvider';
 
-import { COLUMNS, COLUMNS2 } from './data/columns';
-import { top100Films } from './data/dummyData';
-import rows from './data/rows.json';
+// import { COLUMNS, COLUMNS2 } from './data/columns';
+// import { top100Films } from './data/dummyData';
+// import rows from './data/rows.json';
 
 const App = () => {
 
@@ -17,10 +17,6 @@ const App = () => {
     handleResize()
     return window.removeEventListener('resize', handleResize)
   }, [])
-
-  useEffect(() => {
-    console.log(screenSize)
-  }, [screenSize])
 
   return (
     <div className='p-5'>

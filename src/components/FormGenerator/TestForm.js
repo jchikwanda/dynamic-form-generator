@@ -10,7 +10,11 @@ const TestForm = () => {
     
     // Radio
     const [radioOptions, setRadioOptions] = useState(['Male', 'Female'])
+    const [addCase, setAddCase] = useState(false)
     
+    const handleChange = () => {
+        setAddCase((prev) => !prev);
+    }
 
 
     const config = {
@@ -20,74 +24,91 @@ const TestForm = () => {
             type: 'email-field',
             label: 'Email',
             defaultValue: '',
-            placeholder: 'Enter your email'
+            placeholder: 'Enter your email',
+            required: false
         }, {
             name: 'date',
             type: 'date-picker',
             label: 'Date',
-            defaultValue: dayjs('2022-08-18T21:11:54')
+            defaultValue: new Date().toISOString().split('T')[0],
+            required: false
         }, {
             name: 'time',
             type: 'time-picker',
             label: 'Time',
-            defaultValue: dayjs('2022-08-18T21:11:54')
+            defaultValue: new Date().toLocaleTimeString(),
+            required: false
+        }, {
+            name: 'multiDropdown',
+            type: 'multi-dropdown',
+            label: 'Locations',
+            dropdownList: dropdownOptions,
+            required: false,
+            // defaultValue: [{ label: 'The Shawshank Redemption', year: 1994 }],
+            key: "label",
+            handler: handleChange,
+            getter: addCase
         }, {
             name: 'dropdown',
             type: 'dropdown',
             label: 'Locations',
             dropdownList: dropdownOptions,
-            defaultValue: dayjs('2022-08-18T21:11:54')
+            required: false,
+            key: "label",
         }, {
 
             name: 'radio',
             type: 'radio',
             label: 'Gender',
             radioList: radioOptions,
-            defaultValue: 'Male'
-        }, {
-            name: 'datetime',
-            type: 'datetime-picker',
-            label: 'Date & Time',
-            defaultValue: dayjs('2022-08-18T21:11:54')
+            defaultValue: 'Male',
+            required: false
         }, {
             name: 'checkbox',
             type: 'checkbox',
             label: 'Avoidable',
-            defaultValue: ''
+            defaultValue: '',
+            required: false
         }, {
             name: 'number',
             type: 'number-field',
             label: 'Age',
-            defaultValue: 0
+            defaultValue: 0,
+            required: false
         }, {
             name: 'message',
             type: 'message-field',
             label: 'Message',
             placeholder: "Enter Your Message",
             rows: 4,
-            defaultValue: ''
+            defaultValue: '',
+            required: false
         }, {
             name: 'file',
             type: 'file-field',
             label: 'Document',
-            defaultValue: ''
+            defaultValue: '',
+            required: false
         }, {
             name: 'text',
             type: 'text-field',
             label: 'Title',
             placeholder: 'Enter title',
-            defaultValue: ''
+            defaultValue: '',
+            required: false
         }, {
             name: 'password',
             type: 'password-field',
             label: 'Password',
             placeholder: 'Enter password',
-            defaultValue: ''
+            defaultValue: '',
+            required: false
         }, {
             name: 'switch',
             type: 'switch-field',
             label: 'Monthly Charge',
-            defaultValue: false
+            defaultValue: false,
+            required: false
         }],
         largeDevice: {
             columns: 3
